@@ -1,9 +1,11 @@
 const Datastore = require('@google-cloud/datastore')
 const datastore = Datastore()
-const { map } = require('lodash')
+const { each } = require('lodash')
 
 exports.store = function (req, res) {
-  if (req.method = 'POST' && req.body.data) {
+  const isValid = (req.body.data && req.body.data[0].href)
+
+  if (req.method = 'POST' && isValid) {
     return handlePost(req.body.data, (err) => {
       if (err) return res.send(err)
       res.send('saved')
@@ -13,7 +15,15 @@ exports.store = function (req, res) {
   return res.send('no data')
 }
 
-function handlePost (data, callback) {
-  console.log({data})
+function handlePost (products, callback) {
+  each(products, product => {
+    const key = datastore.key(['Product', product.href])
+
+    datastore.save({ key, data: product }, err => {
+      if (err) callback(err)
+    })
+  })
+
+  console.log({products})
   callback(null)
 }

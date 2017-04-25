@@ -10,20 +10,25 @@ exports.store = function (req, res) {
       if (err) return res.send(err)
       res.send('saved')
     })
+  } else {
+    return res.send('no data')
   }
-
-  return res.send('no data')
 }
 
 function handlePost (products, callback) {
   each(products, product => {
-    const key = datastore.key(['Product', product.href])
+    const key = datastore.key({
+      namespace: 'food-data',
+      path: ['Product', product.href]
+    })
+
+    console.log({key, product})
 
     datastore.save({ key, data: product }, err => {
+      console.log({err})
       if (err) callback(err)
     })
   })
 
   console.log({products})
-  callback(null)
 }

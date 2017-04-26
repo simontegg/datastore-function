@@ -16,6 +16,8 @@ exports.store = function (req, res) {
 }
 
 function handlePost (products, callback) {
+  let count = 0
+
   each(products, product => {
     const key = datastore.key({
       namespace: 'food-data',
@@ -27,6 +29,10 @@ function handlePost (products, callback) {
     datastore.save({ key, data: product }, err => {
       console.log({err})
       if (err) callback(err)
+
+      count ++
+
+      if (count === products.length) callback(null)
     })
   })
 

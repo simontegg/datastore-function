@@ -1,6 +1,6 @@
 const Datastore = require('@google-cloud/datastore')
 const datastore = Datastore()
-const { each } = require('lodash')
+const { each, merge } = require('lodash')
 
 exports.store = function (req, res) {
   const isValid = (req.body.data && req.body.data[0].href)
@@ -17,6 +17,7 @@ exports.store = function (req, res) {
 
 function handlePost (products, callback) {
   let count = 0
+  const date = Date.now()
 
   each(products, product => {
     const key = datastore.key({
@@ -24,9 +25,10 @@ function handlePost (products, callback) {
       path: ['Product', product.href]
     })
 
-    console.log({key, product})
 
-    datastore.save({ key, data: product }, err => {
+    const p = merge(product, { date })
+
+    datastore.save({ key, data: p }, err => {
       console.log({err})
       if (err) callback(err)
 
